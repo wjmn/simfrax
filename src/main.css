@@ -1,0 +1,203 @@
+/*
+  elm-hot creates an additional div wrapper around the app to make HMR possible.
+  This could break styling in development mode if you are using Elm UI.
+
+  More context in the issue:
+    https://github.com/halfzebra/create-elm-app/issues/320
+*/
+[data-elm-hot="true"] {
+  height: inherit;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+.title, p {
+  font-family: "Merriweather", "Times New Roman", serif;
+}
+
+.title {
+  margin: 0;
+  padding: 0;
+  font-size: 1.5rem;
+}
+
+.subtitle {
+  margin: 0;
+  padding: 0;
+  font-weight: normal;
+  font-size: 1rem;
+}
+
+#main {
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+#section-top {
+  height: 50%;
+  width: 100%;
+  display: flex;
+}
+
+#section-top-left {
+  padding: 1rem;
+  min-width: 320px;
+  max-width: 320px;
+}
+
+#section-top-right {
+}
+
+
+#section-top-right-bordered {
+  margin: 1rem;
+  padding-top: 1rem;
+  border-top: 5px solid black;
+  background: oklch(98.5% 0.002 247.839);
+  padding: 1rem;
+}
+
+#section-bottom {
+  height: 50%;
+  width: 100%;
+  display: flex;
+}
+
+#section-bottom-left {
+  min-width: 320px;
+  max-width: 320px;
+  padding: 1rem;
+}
+
+#section-bottom-right {
+  flex-grow: 1;
+  padding: 1rem;
+}
+
+/* Allele */
+
+.allele-container {
+  display: flex;
+  flex-direction: column;
+  margin-top: 2rem;
+}
+
+.triplet-text {
+  font-family: "Inter", system-ui, sans-serif;
+  font-weight: bold;
+  padding: 1px 5px;
+  border-radius: 2px;
+  color: white;
+}
+
+.text-cgg {
+  background: oklch(57.7% 0.245 27.325);
+}
+
+.text-agg {
+  background: oklch(54.6% 0.245 262.881);
+}
+
+.allele-top {
+  display: flex;
+  align-items: center;
+}
+
+.allele-label-name {
+  font-weight: bold;
+  margin-right: 1rem;
+}
+
+.allele-bottom {
+  flex-grow: 1;
+}
+.allele-input {
+  width: 4rem;
+  height: 2rem;
+  text-align: center;
+  border: none;
+  background: oklch(96.7% 0.003 264.542);
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: oklch(37.3% 0.034 259.733);
+}
+
+.allele-input:hover {
+  background: oklch(87.2% 0.01 258.338);
+}
+
+.allele-label-string {
+  margin-left: 0.5rem;
+  color: #333;
+}
+
+.allele-visual-container {
+  display: grid;
+  column-gap: 1px;
+  grid-template-columns: repeat(227, 1fr);
+  height: 1rem;
+}
+
+.allele-visual-block {
+  position: relative;
+  cursor: pointer;
+}
+
+.allele-visual-block-inert {
+  cursor: default;
+  background: oklch(27.8% 0.033 256.848);
+  font-size: 0.8em;
+  padding: 1px 2px;
+  color: white;
+}
+
+.allele-visual-block:hover {
+  background: black !important;
+}
+
+
+
+.allele-visual-block:hover > .allele-visual-block-text {
+  opacity: 1;
+}
+
+.allele-visual-block.CGG {
+  background: oklch(57.7% 0.245 27.325);
+}
+
+.allele-visual-block.AGG {
+  background: oklch(54.6% 0.245 262.881);
+}
+
+.allele-visual-block-text {
+  position: absolute;
+  top: -1.75rem;
+  background: black;
+  color: white;
+  padding: 0.25rem;
+  left: 0rem;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.allele-section-heading {
+  font-size: 1.5rem;
+  font-family: "Merriweather", "Times New Roman", serif;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.sim-graph {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
