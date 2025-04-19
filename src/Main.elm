@@ -252,14 +252,54 @@ viewSimTriplet model =
         xminString = String.fromInt xmin
 
         viewBoxString = 
-            xminString ++ " 1 " ++ String.fromInt xmax ++ " 110"
+            xminString ++ " 1 " ++ String.fromInt xmax ++ " 112"
+
+        -- Get location of two full sized alleles
+        fullAlleleAUnsorted =
+            SimTriplet.getFullFragmentSize model.allelePair.alleleA
+        alleleASizeUnsorted = 
+            Allele.getSize model.allelePair.alleleA
+
+        fullAlleleBUnsorted =
+            SimTriplet.getFullFragmentSize model.allelePair.alleleB
+
+        alleleBSizeUnsorted = 
+            Allele.getSize model.allelePair.alleleB
+
+        (alleleASize, alleleBSize) = 
+            if alleleASizeUnsorted > alleleBSizeUnsorted then
+                (alleleASizeUnsorted, alleleBSizeUnsorted)
+
+            else
+                (alleleBSizeUnsorted, alleleASizeUnsorted)
+
+        (fullAlleleA, fullAlleleB) = 
+            if fullAlleleAUnsorted > fullAlleleBUnsorted then
+                (fullAlleleAUnsorted, fullAlleleBUnsorted)
+
+            else
+                (fullAlleleBUnsorted, fullAlleleAUnsorted)
     in
     div [ class "sim-container" ]
         [ div [ class "sim-graph" ]
             [ svg [ SA.viewBox viewBoxString ]
-                [ Svg.line
+                [ 
+                -- draw rectangles at the two full alleles
+                Svg.g []
+                    [ Svg.rect [ SA.x (String.fromFloat <| toFloat fullAlleleA - 1.5), SA.y "11", SA.width "3", SA.height "89", SA.fill "#ccc", SA.opacity "0.5" ] []
+                    -- put text in grey box
+                    , Svg.rect [ SA.x (String.fromFloat <| toFloat fullAlleleA - 10), SA.y "101", SA.width "20", SA.height "11", SA.fill "#ccc", SA.opacity "0.5", SA.stroke "green" ] []
+                    , Svg.text_ [ SA.class "no-pointer", SA.x (String.fromInt fullAlleleA), SA.y "110", SA.fill "black", SA.fontSize "8px", SA.textAnchor "middle" ] [ Svg.text (String.fromInt alleleASize) ]
+                    , Svg.rect [ SA.x (String.fromFloat <| toFloat fullAlleleB - 1.5), SA.y "11", SA.width "3", SA.height "89", SA.fill "#ccc", SA.opacity "0.5" ] []
+                    , Svg.rect [ SA.x (String.fromFloat <| toFloat fullAlleleB - 10), SA.y "101", SA.width "20", SA.height "11", SA.fill "#ccc", SA.opacity "0.5", SA.stroke "green" ] []
+                    , Svg.text_ [ SA.class "no-pointer", SA.x (String.fromInt fullAlleleB), SA.y "110", SA.fill "black", SA.fontSize "8px", SA.textAnchor "middle" ] [ Svg.text (String.fromInt alleleBSize) ]
+                    ]
+
+  
+                , Svg.line
                     [ SA.x1 xminString, SA.y1 "100", SA.x2 "1000", SA.y2 "100", SA.stroke "blue" ]
                     []
+
                 , Svg.g []
                     [ Svg.polyline
                         [ SA.points
@@ -276,7 +316,7 @@ viewSimTriplet model =
                 , Svg.g []
                     [ Svg.rect [ SA.x (String.fromInt (SimTriplet.primerRDistance + SimTriplet.primerRLength + 15)), SA.y "1", SA.width (String.fromInt (xmax - 10 - 15 - SimTriplet.primerRDistance - SimTriplet.primerRLength)), SA.height "10", SA.fill "#eee", SA.stroke "green" ] []
                     , Svg.rect [ SA.x xminString, SA.y "11", SA.width (String.fromInt xmax), SA.height "89", SA.fill "none", SA.stroke "black" ] []
-                    , Svg.text_ [ SA.x "400", SA.y "9", SA.fill "#222", SA.fontSize "8px", SA.textAnchor "middle" ] [ Svg.text "FRAX" ]
+                    , Svg.text_ [ SA.x "510", SA.y "9", SA.fill "#222", SA.fontSize "8px", SA.textAnchor "middle" ] [ Svg.text "FRAX" ]
                     , Svg.text_ [ SA.x (String.fromInt (xmin + 4)), SA.y "24", SA.fill "#222", SA.fontSize "10px", SA.textAnchor "left" ] [ Svg.text "Triplet-repeat primed PCR" ]
                     ]
 
@@ -291,6 +331,7 @@ viewSimTriplet model =
                                     ]
                             )
                     )
+
                 ]
             ]
         ]

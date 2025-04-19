@@ -34,7 +34,7 @@ calculateFragmentDistribution : AllelePair -> Array Int
 calculateFragmentDistribution allelePair = 
     let
         -- Initialise an array of max allele size with all values set to 0 
-        relFreq = Array.repeat (Allele.maxAlleleSize * Triplet.size + primerFDistance + primerFLength) 0
+        relFreq = Array.repeat (Allele.maxAlleleSize * Triplet.size + primerFDistance + primerFLength + tripletPrimerAddLength) 0
         -- Get fragment distributions for each allele triplet repeat primed
         alleleAFragmentSizes = getTripletFragmentSizes allelePair.alleleA 
         alleleBFragmentSizes = getTripletFragmentSizes allelePair.alleleB 
