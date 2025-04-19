@@ -51,8 +51,9 @@ body {
 
 #section-top-left {
   padding: 1rem;
-  min-width: 320px;
-  max-width: 320px;
+  min-width: 280px;
+  max-width: 280px;
+  overflow: auto;
 }
 
 #section-top-right {
@@ -65,23 +66,26 @@ body {
   border-top: 5px solid black;
   background: oklch(98.5% 0.002 247.839);
   padding: 1rem;
+  padding-bottom: 2rem;
 }
 
 #section-bottom {
   height: 65%;
   width: 100%;
   display: flex;
+  position: relative;
 }
 
 #section-bottom-left {
-  min-width: 320px;
-  max-width: 320px;
   padding: 1rem;
+  overflow: auto;
+  flex-grow: 1;
 }
 
 #section-bottom-right {
-  flex-grow: 1;
+  height: 100%;
   padding: 1rem;
+  aspect-ratio: 860 / 380;
 }
 
 /* Allele */
@@ -198,8 +202,9 @@ body {
 }
 
 .sim-graph {
+  height: 33%;
   margin-top: 1rem;
-  margin-bottom: 1rem;
+  position: relative;
 }
 
 .graph-vline {

@@ -21,21 +21,25 @@ The simulated kit produces fragments in two ways:
 
 {-| Distance from forward primer to start of triplet repeat region -}
 primerFDistance : Int
-primerFDistance = 30
+primerFDistance = 91
 
 primerFLength : Int 
-primerFLength = 18
+primerFLength = 25
 
 {-| Distance from reverse primer to end of triplet repeat region -}
 primerRDistance : Int
-primerRDistance = 30
+primerRDistance = 90
 
 primerRLength : Int
-primerRLength = 18
+primerRLength = 25
 
 tripletPrimer : Array Triplet
 tripletPrimer = 
     Array.fromList [Cgg, Cgg, Cgg, Cgg, Cgg]
+
+tripletPrimerAddLength : Int 
+tripletPrimerAddLength =  23
+
 
 getTripletFragmentSizes : Allele -> List Int 
 getTripletFragmentSizes allele = 
@@ -44,7 +48,7 @@ getTripletFragmentSizes allele =
     in
     allele 
     |> Allele.getPrimerBindIndices tripletPrimer
-    |> List.map (\i -> (alleleSize - i) * Triplet.size + primerRDistance + primerRLength)
+    |> List.map (\i -> (alleleSize - i) * Triplet.size + primerRDistance + primerRLength + tripletPrimerAddLength)
     
 getFullFragmentSize : Allele -> Int
 getFullFragmentSize allele = 
@@ -60,7 +64,7 @@ calculateFragmentDistribution : AllelePair -> Array Int
 calculateFragmentDistribution allelePair = 
     let
         -- Initialise an array of max allele size with all values set to 0 
-        relFreq = Array.repeat (Allele.maxAlleleSize * Triplet.size) 0
+        relFreq = Array.repeat (Allele.maxAlleleSize * Triplet.size + primerFDistance + primerFLength + primerRDistance + primerRLength + 1) 0
         -- Get fragment distributions for each allele triplet repeat primed
         alleleAFragmentSizes = getTripletFragmentSizes allelePair.alleleA 
         alleleBFragmentSizes = getTripletFragmentSizes allelePair.alleleB 
@@ -73,7 +77,7 @@ calculateFragmentDistribution allelePair =
             List.foldl (\size acc -> Array.set size (Maybe.withDefault 0 (Array.get size acc) + 1) acc) relFreq (alleleAFragmentSizes ++ alleleBFragmentSizes)
         -- For every full fragment size, add 10 to the relFreq array at the index of the full fragment size
         relFreqWithFull = 
-            List.foldl (\size acc -> Array.set size (Maybe.withDefault 0 (Array.get size acc) + 5) acc) relFreqWithTrip alleleFullFragmentSizes
+            List.foldl (\size acc -> Array.set size (Maybe.withDefault 0 (Array.get size acc) + 8) acc) relFreqWithTrip alleleFullFragmentSizes
     in 
     -- Return the final array with all fragment sizes and their relative frequencies
     relFreqWithFull
@@ -83,6 +87,6 @@ arrayValuesToPolylinePoints array =
     let
         list = 
             array 
-            |> Array.Extra.indexedMapToList (\i v -> (toFloat i, toFloat v * 4 * 1.005 ^ (0 - (toFloat i))))
+            |> Array.Extra.indexedMapToList (\i v -> (toFloat i, toFloat v * 5 * 1.005 ^ (0 - (toFloat i))))
     in 
     list 

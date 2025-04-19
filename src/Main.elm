@@ -9,6 +9,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import List.Extra
 import SimAgg
+import SimAggRev
 import SimTriplet
 import Svg exposing (svg)
 import Svg.Attributes as SA
@@ -25,6 +26,7 @@ type alias Model =
     , lastAggPositionsB : List Int
     , simTripletValues : Array Int
     , simAggValues : Array Int
+    , simAggRevValues : Array Int
     }
 
 
@@ -41,6 +43,7 @@ initialModel =
     , lastAggPositionsB = []
     , simTripletValues = SimTriplet.calculateFragmentDistribution initialPair
     , simAggValues = SimAgg.calculateFragmentDistribution initialPair
+    , simAggRevValues = SimAggRev.calculateFragmentDistribution initialPair
     }
 
 
@@ -100,8 +103,11 @@ update msg model =
 
                 newCalculatedSimAggValues =
                     SimAgg.calculateFragmentDistribution newAllelePair
+
+                newCalculatedSimAggRevValues =
+                    SimAggRev.calculateFragmentDistribution newAllelePair
             in
-            { model | allelePair = newAllelePair, simTripletValues = newCalculatedSimTripletValues, simAggValues = newCalculatedSimAggValues }
+            { model | allelePair = newAllelePair, simTripletValues = newCalculatedSimTripletValues, simAggValues = newCalculatedSimAggValues, simAggRevValues = newCalculatedSimAggRevValues }
                 |> withCmd Cmd.none
 
         ClickedAlleleBlock allelePairId index ->
@@ -146,8 +152,11 @@ update msg model =
 
                 newCalculatedSimAggValues =
                     SimAgg.calculateFragmentDistribution newAllelePair
+
+                newCalculatedSimAggRevValues =
+                    SimAggRev.calculateFragmentDistribution newAllelePair
             in
-            { model | allelePair = newAllelePair, lastAggPositionsA = lastAggPositionsA, lastAggPositionsB = lastAggPositionsB, simTripletValues = newCalculatedSimTripletValues, simAggValues = newCalculatedSimAggValues }
+            { model | allelePair = newAllelePair, lastAggPositionsA = lastAggPositionsA, lastAggPositionsB = lastAggPositionsB, simTripletValues = newCalculatedSimTripletValues, simAggValues = newCalculatedSimAggValues, simAggRevValues = newCalculatedSimAggRevValues }
                 |> withCmd Cmd.none
 
         NoOp ->
@@ -167,7 +176,7 @@ view model =
                 , h2 [ class "subtitle" ] [ text "A fragment analysis simulator for Fragile X genotypes." ]
                 , div []
                     [ p [] [ text "Specify the number of ", span [ class "triplet-text text-cgg" ] [ text "CGG" ], text " repeats in each Fragile X allele on the right. Click on a repeat to change it to an ", span [ class "triplet-text text-agg" ] [ text "AGG" ], text " interruption and back." ] ]
-                , p [] [ text "The graphs below will update, showing a simulated fragment analysis plot using a standard triplet-repeat primed PCR kit as well as a specific A-primed PCR reaction." ]
+                , p [] [ text "The graphs below will update, showing simulated fragment analysis plots." ]
                 ]
             , div [ id "section-top-right" ]
                 [ div [ id "section-top-right-bordered" ]
@@ -180,12 +189,22 @@ view model =
         , div [ id "section-bottom" ]
             [ div [ id "section-bottom-left" ]
                 [ div []
-                    [ p [] [ text "This plot shows the simulated fragment distribution for a standard triplet-repeat primed PCR kit. " ] ]
-                , p [] [ text "This plot shows the simulated fragment sizes for an A-primed PCR reaction." ]
+                    [ p []
+                        [ text "The first plot shows the ", b [] [text "idealised (noiseless)"], text " simulated fragment distribution for a standard triplet-repeat primed PCR kit such as described in "
+                        , a [ href "https://pubmed.ncbi.nlm.nih.gov/20616364/" ] [ text "Chen et al 2010" ]
+                        , text (". The simulation uses a forward primer of length " ++ String.fromInt SimTriplet.primerFLength ++ "bp located " ++ String.fromInt SimTriplet.primerFDistance ++ "bp from the start of the triplet repeat region, and a reverse primer of length " ++ String.fromInt SimTriplet.primerRLength ++ "bp located " ++ String.fromInt SimTriplet.primerRDistance ++ "bp from the end of the triplet repeat region.")
+                        , text (" The triplet repeat primer consists of " ++ String.fromInt (Array.length SimTriplet.tripletPrimer) ++ "x CGG repeats with extra 5' sequence of " ++ String.fromInt SimTriplet.tripletPrimerAddLength ++ "bp.")
+                        ]
+                    ]
+                , p [] [ text "The bottom two plots show the simulated fragment sizes for an A-primed PCR reaction and a T-primed PCR reaction specifically designed to detect AGG repeats as described in " 
+                , a [href "https://pubmed.ncbi.nlm.nih.gov/28818679/"] [text "Hayward & Usdin 2017"]
+                , text <| ". The simulated A-primed reaction uses a primer with 3x CGG repeats and a 3' A with extra 5' sequence of " ++ String.fromInt SimAgg.tripletPrimerAddLength ++ "bp. The T-primed reaction uses a primer with 3x CCG repeats and a 3' T with extra 5' sequence of " ++ String.fromInt SimAggRev.tripletPrimerAddLength ++ "bp."
+                ]
                 ]
             , div [ id "section-bottom-right" ]
                 [ viewSimTriplet model
                 , viewSimAgg model
+                , viewSimAggRev model
                 ]
             ]
         ]
@@ -224,11 +243,22 @@ viewAllele allelePairId allele =
 
 viewSimTriplet : Model -> Html Msg
 viewSimTriplet model =
+    let
+
+        xmax = 
+            SimTriplet.primerRDistance + SimTriplet.primerRLength + (Allele.maxAlleleSize * Triplet.size) + SimTriplet.primerFDistance + SimTriplet.primerFLength + SimTriplet.tripletPrimerAddLength + 10
+
+        xmin = 80
+        xminString = String.fromInt xmin
+
+        viewBoxString = 
+            xminString ++ " 1 " ++ String.fromInt xmax ++ " 110"
+    in
     div [ class "sim-container" ]
         [ div [ class "sim-graph" ]
-            [ svg [ SA.viewBox "0 1 800 110" ]
-                [ Svg.line 
-                    [ SA.x1 "0", SA.y1 "100", SA.x2 "1000", SA.y2 "100", SA.stroke "blue" ]
+            [ svg [ SA.viewBox viewBoxString ]
+                [ Svg.line
+                    [ SA.x1 xminString, SA.y1 "100", SA.x2 "1000", SA.y2 "100", SA.stroke "blue" ]
                     []
                 , Svg.g []
                     [ Svg.polyline
@@ -244,18 +274,22 @@ viewSimTriplet model =
                         []
                     ]
                 , Svg.g []
-                    [Svg.rect [SA.x (String.fromInt (SimTriplet.primerRDistance + SimTriplet.primerRLength)), SA.y "1", SA.width (String.fromInt (Allele.maxAlleleSize * Triplet.size)), SA.height "10", SA.fill "#eee", SA.stroke "green"] []
-                    , Svg.rect [SA.x "0", SA.y "11", SA.width "800", SA.height "89", SA.fill "none", SA.stroke "black"] []
-                    , Svg.text_ [ SA.x "400", SA.y "9", SA.fill "#222", SA.fontSize "8px", SA.textAnchor "middle" ] [ Svg.text "FRAX" ]]
+                    [ Svg.rect [ SA.x (String.fromInt (SimTriplet.primerRDistance + SimTriplet.primerRLength + 15)), SA.y "1", SA.width (String.fromInt (xmax - 10 - 15 - SimTriplet.primerRDistance - SimTriplet.primerRLength)), SA.height "10", SA.fill "#eee", SA.stroke "green" ] []
+                    , Svg.rect [ SA.x xminString, SA.y "11", SA.width (String.fromInt xmax), SA.height "89", SA.fill "none", SA.stroke "black" ] []
+                    , Svg.text_ [ SA.x "400", SA.y "9", SA.fill "#222", SA.fontSize "8px", SA.textAnchor "middle" ] [ Svg.text "FRAX" ]
+                    , Svg.text_ [ SA.x (String.fromInt (xmin + 4)), SA.y "24", SA.fill "#222", SA.fontSize "10px", SA.textAnchor "left" ] [ Svg.text "Triplet-repeat primed PCR" ]
+                    ]
 
                 -- create small rectangles in increments of 3 along the entire x axis
                 , Svg.g []
                     (List.range 0 (1000 // 3)
-                        |> List.map (\i -> 
-                            Svg.g [SA.class "graph-vline"] 
-                             [Svg.rect [ SA.x (String.fromFloat (toFloat i * 3 - 1.5)), SA.y "11", SA.width "3", SA.height "89", SA.fill "#ccc"] []
-                             , Svg.text_ [ SA.class "no-pointer", SA.x (String.fromFloat (toFloat i * 3 - 1.5)), SA.y "110", SA.fill "black", SA.fontSize "8px", SA.textAnchor "middle" ] [ Svg.text (String.fromInt (i * 3) ++ "bp") ]
-                             ])
+                        |> List.map
+                            (\i ->
+                                Svg.g [ SA.class "graph-vline" ]
+                                    [ Svg.rect [ SA.x (String.fromFloat (toFloat i * 3 - 1.5)), SA.y "11", SA.width "3", SA.height "89", SA.fill "#ccc" ] []
+                                    , Svg.text_ [ SA.class "no-pointer", SA.x (String.fromFloat (toFloat i * 3 - 1.5)), SA.y "110", SA.fill "black", SA.fontSize "8px", SA.textAnchor "middle" ] [ Svg.text (String.fromInt (i * 3) ++ "bp") ]
+                                    ]
+                            )
                     )
                 ]
             ]
@@ -264,9 +298,31 @@ viewSimTriplet model =
 
 viewSimAgg : Model -> Html Msg
 viewSimAgg model =
+    let
+        -- Get array positions of any value above 0
+        aboveZeroIndices =
+            model.simAggValues
+                |> Array.Extra.indexedMapToList
+                    (\i v ->
+                        if v > 0 then
+                            Just i
+
+                        else
+                            Nothing
+                    )
+                |> List.filterMap identity
+        xmin = 80
+        xminString = String.fromInt xmin
+        xmax = 
+            SimTriplet.primerRDistance + SimTriplet.primerRLength + (Allele.maxAlleleSize * Triplet.size) + SimTriplet.primerFDistance + SimTriplet.primerFLength + SimTriplet.tripletPrimerAddLength + 10
+
+        xmaxString = String.fromInt xmax
+        viewBoxString = 
+            xminString ++ " 1 " ++ xmaxString ++ " 110"
+    in
     div [ class "sim-container" ]
         [ div [ class "sim-graph" ]
-            [ svg [ SA.viewBox "0 1 1000 100" ]
+            [ svg [ SA.viewBox viewBoxString ]
                 [ Svg.g []
                     [ Svg.polyline
                         [ SA.points
@@ -280,11 +336,87 @@ viewSimAgg model =
                         ]
                         []
                     ]
+
+                -- Axis rectangle
+                , Svg.g []
+                    [ Svg.rect [ SA.x (xminString), SA.y "1", SA.width (String.fromInt xmax ), SA.height "99", SA.fill "none", SA.stroke "black" ] []
+                    , Svg.text_ [ SA.x (String.fromInt (xmin + 4)), SA.y "14", SA.fill "#222", SA.fontSize "10px", SA.textAnchor "left", SA.rotate "90deg" ] [ Svg.text "A-primed PCR" ]
+                    ]
+
+                -- Add text above all aboveZeroIndices
+                , Svg.g []
+                    (List.map
+                        (\i ->
+                            Svg.text_ [ SA.x (String.fromFloat (toFloat i)), SA.y "110", SA.fill "#222", SA.fontSize "8px", SA.textAnchor "middle" ] [ Svg.text (String.fromInt i ++ "bp") ]
+                        )
+                        aboveZeroIndices
+                    )
                 ]
             ]
         ]
 
 
+viewSimAggRev : Model -> Html Msg
+viewSimAggRev model =
+    let
+        -- Get array positions of any value above 0
+        aboveZeroIndices =
+            model.simAggRevValues
+                |> Array.Extra.indexedMapToList
+                    (\i v ->
+                        if v > 0 then
+                            Just i
+
+                        else
+                            Nothing
+                    )
+                |> List.filterMap identity
+
+        xmin = 80
+        xminString = String.fromInt xmin
+        xmax = 
+            SimTriplet.primerRDistance + SimTriplet.primerRLength + (Allele.maxAlleleSize * Triplet.size) + SimTriplet.primerFDistance + SimTriplet.primerFLength + SimTriplet.tripletPrimerAddLength + 10
+
+        xmaxString = String.fromInt xmax
+        viewBoxString = 
+            xminString ++ " 1 " ++ xmaxString ++ " 110"
+
+    in
+    div [ class "sim-container" ]
+        [ div [ class "sim-graph" ]
+            [ svg [ SA.viewBox viewBoxString ]
+                [ Svg.g []
+                    [ Svg.polyline
+                        [ SA.points
+                            (SimAggRev.arrayValuesToPolylinePoints model.simAggRevValues
+                                |> List.map (\( x, y ) -> String.fromFloat x ++ "," ++ String.fromFloat (100 - 10 * y))
+                                |> String.join " "
+                            )
+                        , SA.stroke "blue"
+                        , SA.fill "none"
+                        , SA.strokeLinejoin "round"
+                        ]
+                        []
+                    ]
+
+                -- Axis rectangle
+                , Svg.g []
+                    [ Svg.rect [ SA.x (xminString), SA.y "1", SA.width (String.fromInt xmax), SA.height "99", SA.fill "none", SA.stroke "black" ] []
+                    , Svg.text_ [ SA.x (String.fromInt (xmin + 4)), SA.y "14", SA.fill "#222", SA.fontSize "10px", SA.textAnchor "left", SA.rotate "90deg" ] [ Svg.text "T-primed PCR" ]
+                    ]
+
+                -- Add text above all aboveZeroIndices
+                , Svg.g []
+                    (List.map
+                        (\i ->
+                            Svg.text_ [ SA.x (String.fromFloat (toFloat i)), SA.y "110", SA.fill "#222", SA.fontSize "8px", SA.textAnchor "middle" ] [ Svg.text (String.fromInt i ++ "bp") ]
+                        )
+                        aboveZeroIndices
+                    )
+                ]
+            ]
+        ]
+    
 
 ---- PROGRAM ----
 

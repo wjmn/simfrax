@@ -1,4 +1,4 @@
-module SimAgg exposing (..)
+module SimAggRev exposing (..)
 
 import Triplet exposing (Triplet(..))
 import Allele exposing (Allele, AllelePair)
@@ -7,15 +7,14 @@ import Array.Extra
 
 
 
-primerRDistance : Int
-primerRDistance = 90
+primerFDistance : Int
+primerFDistance = 91
 
-primerRLength : Int
-primerRLength = 25
+primerFLength : Int
+primerFLength = 25
 
 tripletPrimerAddLength : Int
-tripletPrimerAddLength = 23
-
+tripletPrimerAddLength = 22
 
 tripletPrimer : Array Triplet
 tripletPrimer = 
@@ -25,16 +24,17 @@ getTripletFragmentSizes : Allele -> List Int
 getTripletFragmentSizes allele = 
     let
         alleleSize = Allele.getSize allele
+        reversedAllele = { allele | triplets = List.reverse allele.triplets }
     in
-    allele 
+    reversedAllele
     |> Allele.getPrimerBindIndices tripletPrimer
-    |> List.map (\i -> (alleleSize - i) * Triplet.size + primerRDistance + primerRLength + tripletPrimerAddLength)
+    |> List.map (\i -> (alleleSize - i) * Triplet.size + primerFDistance + primerFLength + tripletPrimerAddLength)
     
 calculateFragmentDistribution : AllelePair -> Array Int 
 calculateFragmentDistribution allelePair = 
     let
         -- Initialise an array of max allele size with all values set to 0 
-        relFreq = Array.repeat (Allele.maxAlleleSize * Triplet.size + primerRDistance + primerRLength) 0
+        relFreq = Array.repeat (Allele.maxAlleleSize * Triplet.size + primerFDistance + primerFLength) 0
         -- Get fragment distributions for each allele triplet repeat primed
         alleleAFragmentSizes = getTripletFragmentSizes allelePair.alleleA 
         alleleBFragmentSizes = getTripletFragmentSizes allelePair.alleleB 
