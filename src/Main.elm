@@ -226,7 +226,7 @@ viewSimTriplet : Model -> Html Msg
 viewSimTriplet model =
     div [ class "sim-container" ]
         [ div [ class "sim-graph" ]
-            [ svg [ SA.viewBox "0 1 1000 100" ]
+            [ svg [ SA.viewBox "0 1 1000 110" ]
                 [ Svg.line 
                     [ SA.x1 "0", SA.y1 "100", SA.x2 "1000", SA.y2 "100", SA.stroke "blue" ]
                     []
@@ -245,7 +245,17 @@ viewSimTriplet model =
                     ]
                 , Svg.g []
                     [Svg.rect [SA.x (String.fromInt (SimTriplet.primerRDistance + SimTriplet.primerRLength)), SA.y "1", SA.width (String.fromInt (Allele.maxAlleleSize * Triplet.size)), SA.height "10", SA.fill "#eee", SA.stroke "green"] []
-                    , Svg.rect [SA.x "0", SA.y "20", SA.width "1000", SA.height "80", SA.fill "none", SA.stroke "black"] []]
+                    , Svg.rect [SA.x "0", SA.y "11", SA.width "1000", SA.height "89", SA.fill "none", SA.stroke "black"] []]
+
+                -- create small rectangles in increments of 3 along the entire x axis
+                , Svg.g []
+                    (List.range 0 (1000 // 3)
+                        |> List.map (\i -> 
+                            Svg.g [SA.class "graph-vline"] 
+                             [Svg.rect [ SA.x (String.fromFloat (toFloat i * 3 - 1.5)), SA.y "11", SA.width "3", SA.height "89", SA.fill "#ccc"] []
+                             , Svg.text_ [ SA.class "no-pointer", SA.x (String.fromFloat (toFloat i * 3 - 1.5)), SA.y "110", SA.fill "black", SA.fontSize "9px", SA.textAnchor "middle" ] [ Svg.text (String.fromInt (i * 3) ++ "bp") ]
+                             ])
+                    )
                 ]
             ]
         ]

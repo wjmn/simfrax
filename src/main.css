@@ -201,3 +201,15 @@ body {
   margin-top: 1rem;
   margin-bottom: 1rem;
 }
+
+.graph-vline {
+  opacity: 0;
+}
+
+.graph-vline:hover {
+  opacity: 0.5;
+}
+
+.no-pointer {
+  pointer-events: none;
+}
