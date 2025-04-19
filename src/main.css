@@ -44,7 +44,7 @@ body {
 }
 
 #section-top {
-  height: 50%;
+  height: 35%;
   width: 100%;
   display: flex;
 }
@@ -68,7 +68,7 @@ body {
 }
 
 #section-bottom {
-  height: 50%;
+  height: 65%;
   width: 100%;
   display: flex;
 }
@@ -138,7 +138,7 @@ body {
 
 .allele-label-string {
   margin-left: 0.5rem;
-  color: #333;
+  font-weight: bold;
 }
 
 .allele-visual-container {

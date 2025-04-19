@@ -226,7 +226,7 @@ viewSimTriplet : Model -> Html Msg
 viewSimTriplet model =
     div [ class "sim-container" ]
         [ div [ class "sim-graph" ]
-            [ svg [ SA.viewBox "0 1 1000 110" ]
+            [ svg [ SA.viewBox "0 1 800 110" ]
                 [ Svg.line 
                     [ SA.x1 "0", SA.y1 "100", SA.x2 "1000", SA.y2 "100", SA.stroke "blue" ]
                     []
@@ -245,7 +245,8 @@ viewSimTriplet model =
                     ]
                 , Svg.g []
                     [Svg.rect [SA.x (String.fromInt (SimTriplet.primerRDistance + SimTriplet.primerRLength)), SA.y "1", SA.width (String.fromInt (Allele.maxAlleleSize * Triplet.size)), SA.height "10", SA.fill "#eee", SA.stroke "green"] []
-                    , Svg.rect [SA.x "0", SA.y "11", SA.width "1000", SA.height "89", SA.fill "none", SA.stroke "black"] []]
+                    , Svg.rect [SA.x "0", SA.y "11", SA.width "800", SA.height "89", SA.fill "none", SA.stroke "black"] []
+                    , Svg.text_ [ SA.x "400", SA.y "9", SA.fill "#222", SA.fontSize "8px", SA.textAnchor "middle" ] [ Svg.text "FRAX" ]]
 
                 -- create small rectangles in increments of 3 along the entire x axis
                 , Svg.g []
@@ -253,7 +254,7 @@ viewSimTriplet model =
                         |> List.map (\i -> 
                             Svg.g [SA.class "graph-vline"] 
                              [Svg.rect [ SA.x (String.fromFloat (toFloat i * 3 - 1.5)), SA.y "11", SA.width "3", SA.height "89", SA.fill "#ccc"] []
-                             , Svg.text_ [ SA.class "no-pointer", SA.x (String.fromFloat (toFloat i * 3 - 1.5)), SA.y "110", SA.fill "black", SA.fontSize "9px", SA.textAnchor "middle" ] [ Svg.text (String.fromInt (i * 3) ++ "bp") ]
+                             , Svg.text_ [ SA.class "no-pointer", SA.x (String.fromFloat (toFloat i * 3 - 1.5)), SA.y "110", SA.fill "black", SA.fontSize "8px", SA.textAnchor "middle" ] [ Svg.text (String.fromInt (i * 3) ++ "bp") ]
                              ])
                     )
                 ]

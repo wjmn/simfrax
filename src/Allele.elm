@@ -86,7 +86,7 @@ toGroupedString allele =
     allele.triplets 
         |> List.Extra.groupWhile (==) 
         |> List.map (\ (first, rest) -> (first, List.length rest + 1))
-        |> List.map (\(triplet, count) -> "(" ++ toString triplet ++ ")" ++ (if count == 1 then " " else String.fromInt count))
+        |> List.map (\(triplet, count) -> if count == 1 then toString triplet else "(" ++ toString triplet ++ ")" ++ (String.fromInt count))
         |> String.join " "
 
 
