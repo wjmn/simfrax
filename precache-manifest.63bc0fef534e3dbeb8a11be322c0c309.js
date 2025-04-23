@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "20b184969529896acdebda854008c659",
+    "revision": "f55a6337acb2668d5eadb7a90c922c3e",
     "url": "https://wjmn.github.io/simfrax/index.html"
   },
   {
@@ -8,12 +8,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "https://wjmn.github.io/simfrax/manifest.json"
   },
   {
-    "revision": "340a0293b6b7a39f5f6e",
+    "revision": "6c41230bd675a63aba41",
     "url": "https://wjmn.github.io/simfrax/static/css/main.7a01549d.chunk.css"
   },
   {
-    "revision": "340a0293b6b7a39f5f6e",
-    "url": "https://wjmn.github.io/simfrax/static/js/main.340a0293.chunk.js"
+    "revision": "6c41230bd675a63aba41",
+    "url": "https://wjmn.github.io/simfrax/static/js/main.6c41230b.chunk.js"
   },
   {
     "revision": "6c0731647259e0be8669",
